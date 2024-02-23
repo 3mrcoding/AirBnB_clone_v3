@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """/status route for API v1."""
 
+from flask import jsonify
 from api.v1.views import app_views
 from models import storage
 from models.city import City
@@ -14,7 +15,7 @@ from models.amenity import Amenity
 @app_views.route('/status')
 def status():
     """return status of the API as json response."""
-    return {"status": "OK"}
+    return jsonify({"status": "OK"})
 
 
 @app_views.route('/stats')
