@@ -16,6 +16,7 @@ def status():
     """return status of the API as json response."""
     return {"status": "OK"}
 
+
 @app_views.route('/stats')
 def stats():
     """endpoint that retrieves the number of each objects by type"""
