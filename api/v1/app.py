@@ -8,16 +8,16 @@ app = Flask(__name__)
 app.register_blueprint(app_views)
 
 
-@app.errorhandler(404)
-def not_found(error):
-    """return a 404 error as a JSON response"""
-    return {"error": "Not found"}, 404
-
-
 @app.teardown_appcontext
 def terminate(exc):
     """Close SQLAlchemy session"""
     storage.close()
+
+
+@app.errorhandler(404)
+def not_found(error):
+    """return a 404 error as a JSON response"""
+    return {"error": "Not found"}, 404
 
 
 if __name__ == '__main__':
