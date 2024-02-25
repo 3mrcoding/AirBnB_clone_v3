@@ -1,14 +1,14 @@
 #!/usr/bin/python3
-""" state api restful"""
+"""New view for State objects that handles all default RESTFul API actions."""
 
-from api.v1.views import app_views
+from flask import jsonify, abort, request, make_response
 from models import storage
 from models.state import State
-from flask import jsonify, abort, request, make_response
+from api.v1.views import app_views
 
 
 @app_views.route('/states', methods=['GET'], strict_slashes=False)
-def states():
+def get_states():
     """
     Retrieve the list of all State objects.
 
@@ -23,7 +23,7 @@ def states():
 
 
 @app_views.route('/states/<state_id>', methods=['GET'], strict_slashes=False)
-def states_id(state_id):
+def get_state(state_id):
     """
     Retrieve a State object.
 
@@ -33,10 +33,11 @@ def states_id(state_id):
     Returns:
         JSON response: A JSON response containing a State object.
     """
-    stat_obj = storage.get(State, state_id)
-    if stat_obj is None:
+    state = storage.get(State, state_id)
+    if state is None:
         abort(404)
-    return jsonify(stat_obj.to_dict())
+    return jsonify(state.to_dict())
+
 
 @app_views.route('/states/<state_id>', methods=['DELETE'],
                  strict_slashes=False)
@@ -58,8 +59,7 @@ def delete_state(state_id):
     return jsonify({})
 
 
-@app_views.route('/states', methods=['POST'],
-                 strict_slashes=False)
+@app_views.route('/states', methods=['POST'], strict_slashes=False)
 def post_state():
     """
     Create a State object.
@@ -67,19 +67,16 @@ def post_state():
     Returns:
         JSON response: A JSON response containing a new State object.
     """
-    add = request.get_json()
-    if add is None:
+    if not request.json:
         abort(400, 'Not a JSON')
-    if "name" not in add:
+    if 'name' not in request.json:
         abort(400, 'Missing name')
-    stat_obj = State(name=add['name'])
-    storage.new(stat_obj)
-    storage.save()
-    return jsonify(stat_obj.to_dict()), 201
+    state = State(**request.get_json())
+    state.save()
+    return make_response(jsonify(state.to_dict()), 201)
 
 
-@app_views.route('/states/<state_id>', methods=['PUT'],
-                 strict_slashes=False)
+@app_views.route('/states/<state_id>', methods=['PUT'], strict_slashes=False)
 def put_state(state_id):
     """
     Update a State object.
@@ -90,18 +87,17 @@ def put_state(state_id):
     Returns:
         JSON response: A JSON response containing an updated State object.
     """
-    add = request.get_json()
-    stat_obj = storage.get(State, state_id)
-    if not stat_obj:
+    state = storage.get(State, state_id)
+    if state is None:
         abort(404)
-    if not add:
-        abort(400, "Not a JSON")
-    ignoreKeys = ['id', 'created_at', 'updated_at']
-    for key, value in add.items():
-        if key not in ignoreKeys:
-            setattr(stat_obj, key, value)
-    stat_obj.save()
-    return jsonify(stat_obj.to_dict())
+    if not request.json:
+        abort(400, 'Not a JSON')
+    for key, value in request.get_json().items():
+        if key not in ['id', 'created_at', 'updated_at']:
+            setattr(state, key, value)
+    state.save()
+    return jsonify(state.to_dict())
+
 
 if __name__ == '__main__':
     pass
