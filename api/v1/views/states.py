@@ -7,7 +7,6 @@ from models.state import State
 from flask import jsonify, abort, request, make_response
 
 
-
 @app_views.route('/states', methods=['GET'], strict_slashes=False)
 def states():
     """return status of the API as json response."""
@@ -16,6 +15,7 @@ def states():
     for state in states.values():
         list_states.append(state.to_dict())
     return jsonify(list_states)
+
 
 @app_views.route('/states/<id>', methods=['GET'], strict_slashes=False)
 def states_id(id):
@@ -72,9 +72,35 @@ def post_state():
     add = request.get_json()
     if not add:
         abort(404, "Not a JSON")
-    if not 'name' in add:
+    if 'name' not in add:
         abort(404, "Missing name")
-    stat_obj = State(name = add['name'])
+    stat_obj = State(name=add['name'])
     storage.new(stat_obj)
     storage.save()
     return jsonify(stat_obj.to_dict()), 201
+
+
+@app_views.route('/states/<state_id>', methods=['PUT'],
+                 strict_slashes=False)
+def put_state(state_id):
+    """
+    add a State object.
+
+    Args:
+        state_id (str): The UUID4 string representing a State object.
+
+    Returns:
+        JSON response: An added JSON response.
+    """
+    add = request.get_json()
+    if not add:
+        abort(404, "Not a JSON")
+    stat_obj = storage.get(State, state_id)
+    if not stat_obj:
+        abort(404, "Not a JSON")
+    ignoreKeys = ['id', 'created_at', 'updated_at']
+    for key, value in add.items():
+        if key not in ignoreKeys:
+            setattr(stat_obj, key, value)
+    storage.save()
+    return jsonify(stat_obj.to_dict()), 200
