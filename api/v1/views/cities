@@ -4,12 +4,13 @@
 from api.v1.views import app_views
 from models import storage
 from models.state import State
+from models.city import City
 from flask import jsonify, abort, request, make_response
 
 
 
-@app_views.route('/states', methods=['GET'], strict_slashes=False)
-def states():
+@app_views.route('/states/<state_id>/cities', methods=['GET'], strict_slashes=False)
+def Citis():
     """return status of the API as json response."""
     states = storage.all(State)
     list_states = []
@@ -59,7 +60,7 @@ def delete_state(state_id):
 
 @app_views.route('/states', methods=['POST'],
                  strict_slashes=False)
-def post_state():
+def post_state(state_id):
     """
     add a State object.
 
@@ -69,12 +70,10 @@ def post_state():
     Returns:
         JSON response: An added JSON response.
     """
-    add = request.get_json()
-    if not add:
+    if not request.json():
         abort(404, "Not a JSON")
-    if not 'name' in add:
+    if not 'name' in request.json():
         abort(404, "Missing name")
-    stat_obj = State(name = add['name'])
-    storage.new(stat_obj)
+    add = request.get_json()
     storage.save()
-    return jsonify(stat_obj.to_dict()), 201
+    return make_response(jsonify(add.to_dict(), 201))
