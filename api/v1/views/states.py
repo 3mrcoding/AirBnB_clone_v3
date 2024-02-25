@@ -97,7 +97,7 @@ def put_state(state_id):
         abort(404, "Not a JSON")
     stat_obj = storage.get(State, state_id)
     if not stat_obj:
-        abort(404, "Not a JSON")
+        abort(404)
     ignoreKeys = ['id', 'created_at', 'updated_at']
     for key, value in add.items():
         if key not in ignoreKeys:
