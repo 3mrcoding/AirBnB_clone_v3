@@ -100,8 +100,8 @@ def put_state(state_id):
     for key, value in add.items():
         if key not in ignoreKeys:
             setattr(stat_obj, key, value)
-    storage.save()
-    return jsonify(stat_obj.to_dict()), 200
+    stat_obj.save()
+    return jsonify(stat_obj.to_dict())
 
 if __name__ == '__main__':
     pass
