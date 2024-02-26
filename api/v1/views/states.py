@@ -67,11 +67,13 @@ def post_state():
     Returns:
         JSON response: A JSON response containing a new State object.
     """
-    if not request.json:
+    try:
+        new_obj = request.get_json(force=True)
+    except:
         abort(400, 'Not a JSON')
-    if 'name' not in request.json:
+    if 'name' not in new_obj:
         abort(400, 'Missing name')
-    state = State(**request.get_json())
+    state = State(**new_obj)
     state.save()
     return make_response(jsonify(state.to_dict()), 201)
 
@@ -90,9 +92,11 @@ def put_state(state_id):
     state = storage.get(State, state_id)
     if state is None:
         abort(404)
-    if not request.json:
+    try:
+        update_data = request.get_json(force=True)
+    except:
         abort(400, 'Not a JSON')
-    for key, value in request.get_json().items():
+    for key, value in update_data.items():
         if key not in ['id', 'created_at', 'updated_at']:
             setattr(state, key, value)
     state.save()
