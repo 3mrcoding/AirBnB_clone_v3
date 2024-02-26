@@ -1,23 +1,28 @@
 #!/usr/bin/python3
-"""app.py"""
-from flask import Flask, Blueprint, make_response, jsonify
-from models import storage
+"""Creating flask app."""
+
 from api.v1.views import app_views
+from flask import Flask, jsonify
+from models import storage
 from os import getenv
+from flask_cors import CORS
 app = Flask(__name__)
 app.register_blueprint(app_views)
 
 
+cors = CORS(app, resources={r"/api/*": {"origins": "0.0.0.0"}})
+
+
 @app.teardown_appcontext
-def terminate(exc):
-    """Close SQLAlchemy session"""
+def teardown_appcontext(self):
+    """Close the storage."""
     storage.close()
 
 
 @app.errorhandler(404)
-def not_found(error):
-    """return a 404 error as a JSON response"""
-    return {"error": "Not found"}, 404
+def error_handler(error):
+    """Handle for 404 errors."""
+    return jsonify({"error": "Not found"}), 404
 
 
 if __name__ == "__main__":
