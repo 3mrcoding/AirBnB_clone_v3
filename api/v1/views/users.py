@@ -105,7 +105,7 @@ def put_user(user_id):
     for key, value in update_data.items():
         if key not in ["id", "created_at", "updated_at", "email"]:
             setattr(user, key, value)
-    User.save()
+    user.save()
     return jsonify(user.to_dict())
 
 
