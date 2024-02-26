@@ -70,13 +70,13 @@ def post_user():
     """
     try:
         new_user = request.get_json(force=True)
-    except TypeError:
+    except:
         abort(400, 'Not a JSON')
     if 'name' not in new_user:
         abort(400, 'Missing name')
-    elif 'email' not in new_user:
+    if 'email' not in new_user:
         abort(400, 'Missing email')
-    elif 'password' not in new_user:
+    if 'password' not in new_user:
         abort(400, 'Missing password')
     user = User(**new_user)
     user.save()
@@ -100,7 +100,7 @@ def put_user(user_id):
         abort(404)
     try:
         update_data = request.get_json(force=True)
-    except TypeError:
+    except:
         abort(400, {"Not a JSON"})
     for key, value in update_data.items():
         if key not in ["id", "created_at", "updated_at", "email"]:
